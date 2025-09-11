@@ -1,0 +1,5 @@
+{
+  "name": "EU Mortgage Subsidy Copilot",
+  "description": "An AI-powered copilot for European mortgage advisors to discover current mortgage and housing subsidies for their clients using grounded, real-time search across EU databases.",
+  "requestFramePermissions": []
+}
