@@ -2,6 +2,8 @@
 
 ## Demo
 Public Demo
+https://eu-mortgage-subsidy-copilot-530013073407.us-west1.run.app/
+
 
 EU Mortgage Subsidy Copilot is a web application that helps users discover and understand government-backed mortgage and housing subsidies available across EU countries. By leveraging AI, it provides tailored recommendations and summaries based on individual profiles, eligibility, and user-specified filters.
 
