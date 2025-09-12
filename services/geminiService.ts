@@ -90,6 +90,9 @@ export const findSubsidies = async (
     contents: prompt,
     config: {
       tools: [{ googleSearch: {} }],
+      // Disable thinking for a faster response.
+      // This may trade off some quality for speed in complex queries.
+      thinkingConfig: { thinkingBudget: 0 },
     },
   });
 

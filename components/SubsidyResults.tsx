@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import { GeminiResponse, GroundingChunk, Subsidy } from '../types';
-import { CheckCircleIcon, LinkIcon, SparkleIcon, InfoIcon, WarningIcon, ChevronDownIcon } from './icons/Icons';
-import { SubsidyVisualization } from './SubsidyVisualization';
+import React from 'react';
+import { GeminiResponse, GroundingChunk } from '../types';
+import { SparkleIcon, WarningIcon } from './icons/Icons';
 
-interface SubsidyResultsProps {
+interface SummaryCardProps {
   results: GeminiResponse;
   sources: GroundingChunk[];
 }
 
 // Helper component to parse text and convert bracketed citations like [1] into clickable links.
-const CitationLinker: React.FC<{ text: string; sources: GroundingChunk[] }> = ({ text, sources }) => {
+export const CitationLinker: React.FC<{ text: string; sources: GroundingChunk[] }> = ({ text, sources }) => {
     if (!sources || sources.length === 0 || !text) {
         return <>{text}</>;
     }
@@ -34,7 +33,7 @@ const CitationLinker: React.FC<{ text: string; sources: GroundingChunk[] }> = ({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title={source.web.title}
-                                className="inline-block mx-0.5 px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-md text-xs font-semibold align-super hover:bg-blue-200 transition-colors"
+                                className="inline-block text-center mx-1 px-2 py-0.5 bg-brand-light text-brand-primary rounded-full text-xs font-bold align-super hover:bg-blue-200 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:ring-offset-1"
                             >
                                 {citationNumber}
                             </a>
@@ -48,65 +47,26 @@ const CitationLinker: React.FC<{ text: string; sources: GroundingChunk[] }> = ({
     );
 };
 
-const SubsidyCard: React.FC<{ subsidy: Subsidy; sources: GroundingChunk[] }> = ({ subsidy, sources }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    return (
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden transition-shadow duration-300 hover:shadow-lg">
-            <button
-                className="w-full text-left p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 focus:outline-none"
-                onClick={() => setIsExpanded(!isExpanded)}
-            >
-                <h3 className="text-lg font-semibold text-brand-primary">{subsidy.name}</h3>
-                <ChevronDownIcon className={`h-6 w-6 text-gray-500 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-            </button>
-            {isExpanded && (
-                <div className="p-4 border-t border-gray-200">
-                    <p className="text-gray-700 mb-4">
-                        <CitationLinker text={subsidy.description} sources={sources} />
-                    </p>
-                    <div className="mb-4">
-                        <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
-                            <CheckCircleIcon className="h-5 w-5 mr-2 text-green-500" />
-                            Eligibility Criteria
-                        </h4>
-                        <ul className="list-disc list-inside space-y-1 text-gray-600">
-                            {subsidy.eligibility.map((item, index) => (
-                                <li key={index}><CitationLinker text={item} sources={sources} /></li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
-                            <SparkleIcon className="h-5 w-5 mr-2 text-yellow-500" />
-                            Potential Benefit
-                        </h4>
-                        <p className="text-gray-600">
-                            <CitationLinker text={subsidy.potentialBenefit} sources={sources} />
-                        </p>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-export const SubsidyResults: React.FC<SubsidyResultsProps> = ({ results, sources }) => {
+export const SummaryCard: React.FC<SummaryCardProps> = ({ results, sources }) => {
     if (!results || !results.subsidies || results.subsidies.length === 0) {
         return (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-8 rounded-r-lg">
-                <div className="flex">
-                    <div className="flex-shrink-0">
-                        <WarningIcon className="h-5 w-5 text-yellow-400" />
+            <div className="bg-gradient-to-br from-yellow-50 to-white p-6 md:p-8 rounded-lg shadow-lg border border-yellow-200 h-full">
+                <div className="flex items-start">
+                    <div className="flex-shrink-0 bg-yellow-500 text-white rounded-full p-3">
+                        <WarningIcon className="h-7 w-7" />
                     </div>
-                    <div className="ml-3">
-                        <p className="text-sm text-yellow-700">
-                            {results?.summary ? (
-                                <CitationLinker text={results.summary} sources={sources} />
-                            ) : (
-                                "No specific subsidies found based on the provided information. You may still be eligible for other programs."
-                            )}
-                        </p>
+                    <div className="ml-4 flex-1">
+                         <h3 className="text-xl font-bold text-yellow-900 mb-1">No Subsidies Found</h3>
+                         <p className="text-sm text-gray-500 mb-4">Based on your criteria.</p>
+                        <div className="space-y-4 text-base text-gray-700 leading-relaxed border-t border-yellow-200 pt-4">
+                             <p>
+                                {results?.summary ? (
+                                    <CitationLinker text={results.summary} sources={sources} />
+                                ) : (
+                                    "No specific subsidies were found based on the provided profile and filters. Try adjusting your criteria or broadening the search."
+                                )}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -114,52 +74,25 @@ export const SubsidyResults: React.FC<SubsidyResultsProps> = ({ results, sources
     }
   
     return (
-      <div className="mt-8">
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg">
-            <div className="flex">
-                <div className="flex-shrink-0">
-                    <InfoIcon className="h-5 w-5 text-blue-400" />
+        <div className="bg-gradient-to-br from-brand-light to-white p-6 md:p-8 rounded-lg shadow-lg border border-blue-100 h-full">
+            <div className="flex items-start">
+                <div className="flex-shrink-0 bg-brand-primary text-white rounded-full p-3">
+                    <SparkleIcon className="h-7 w-7" />
                 </div>
-                <div className="ml-3">
-                    <h3 className="text-sm font-medium text-blue-800">AI-Powered Summary</h3>
-                    <div className="mt-2 text-sm text-blue-700">
-                        <p><CitationLinker text={results.summary} sources={sources} /></p>
+                <div className="ml-4 flex-1">
+                    <h3 className="text-xl font-bold text-brand-dark mb-1">AI-Powered Summary</h3>
+                    <p className="text-sm text-gray-500 mb-4">A high-level overview of the findings based on your criteria.</p>
+                    <div className="space-y-4 text-base text-gray-700 leading-relaxed border-t border-blue-200 pt-4">
+                        {results.summary.split('\n').map((paragraph, index) => (
+                            paragraph.trim() ? (
+                                <p key={index}>
+                                    <CitationLinker text={paragraph} sources={sources} />
+                                </p>
+                            ) : null
+                        ))}
                     </div>
                 </div>
             </div>
         </div>
-
-        <SubsidyVisualization subsidies={results.subsidies} />
-
-        <div className="space-y-4 mb-8">
-          {results.subsidies.map((subsidy, index) => (
-            <SubsidyCard key={index} subsidy={subsidy} sources={sources} />
-          ))}
-        </div>
-        
-        {sources && sources.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center">
-              <LinkIcon className="h-5 w-5 mr-2 text-gray-500" />
-              Sources
-            </h3>
-            <ul className="space-y-2">
-              {sources.map((source, index) => (
-                <li key={index} className="text-sm flex items-start">
-                   <span className="flex-shrink-0 text-center w-5 h-5 mr-2 mt-0.5 bg-gray-200 text-gray-700 text-xs font-bold rounded-full leading-5">{index + 1}</span>
-                  <a
-                    href={source.web.uri}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-brand-secondary hover:underline break-all"
-                  >
-                    {source.web.title || source.web.uri}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
     );
-  };
+};
