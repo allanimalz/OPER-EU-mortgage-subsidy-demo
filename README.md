@@ -6,7 +6,7 @@ https://eu-mortgage-subsidy-copilot-1019661608867.us-west1.run.app/
 
 ## Overview
 
-This application serves as an intelligent assistant for mortgage advisors operating within the European Union. It leverages the power of the Google Gemini API with Google Search grounding to provide up-to-date, relevant, and verifiable information on housing subsidies. Advisors can input client profiles and specific criteria to quickly identify potential financial aid, streamlining the research process and providing immense value to their clients.
+This application serves as an intelligent assistant for mortgage advisors operating within the European Union. It leverages the power of the Google Gemini API with grounding in verifiable primary sources to provide up-to-date, relevant, and verifiable information on housing subsidies. Advisors can input client profiles and specific criteria to quickly identify potential financial aid, streamlining the research process and providing value to their clients.
 
 ## ✨ Key Features
 
