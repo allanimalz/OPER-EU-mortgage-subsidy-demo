@@ -2,11 +2,11 @@
 
 An AI-powered copilot for European mortgage advisors to discover current mortgage and housing subsidies for their clients using grounded, real-time search across EU databases.
 
-https://eu-mortgage-subsidy-copilot-1019661608867.us-west1.run.app/
+![EU Mortgage Subsidy Copilot Screenshot](https://storage.googleapis.com/aistudio-ux-team-public/sdk-pro-examples/eu-mortgage-copilot.png)
 
 ## Overview
 
-This application serves as an intelligent assistant for mortgage advisors operating within the European Union. It leverages the power of the Google Gemini API with grounding in verifiable primary sources to provide up-to-date, relevant, and verifiable information on housing subsidies. Advisors can input client profiles and specific criteria to quickly identify potential financial aid, streamlining the research process and providing value to their clients.
+This application serves as an intelligent assistant for mortgage advisors operating within the European Union. It leverages the power of the Google Gemini API with Google Search grounding to provide up-to-date, relevant, and verifiable information on housing subsidies. Advisors can input client profiles and specific criteria to quickly identify potential financial aid, streamlining the research process and providing immense value to their clients.
 
 ## ✨ Key Features
 
@@ -19,39 +19,112 @@ This application serves as an intelligent assistant for mortgage advisors operat
 - **Example Profile Generation**: A "Generate Example" feature instantly creates a realistic client profile, making it easy to test and demonstrate the tool's capabilities.
 - **Responsive & Clean UI**: Built with React and Tailwind CSS for a modern, accessible, and easy-to-use experience on any device.
 
-## 🚀 Getting Started
+## 🚀 Getting Started: Running the App Locally
 
-Follow these instructions to set up and run the project on your local machine.
+This guide provides detailed instructions to set up and run the project on your local machine.
+
+The application code is written to use an API key from an environment variable (`process.env.API_KEY`). To handle this correctly during local development, we will use [Vite](https://vitejs.dev/), a modern and fast development server.
 
 ### Prerequisites
 
-- A modern web browser.
-- A local web server to serve the static files. A popular and simple choice is `http-server` for Node.js.
+-   **Node.js and npm**: You need to have Node.js (version 18 or newer) and npm installed. You can download them from the official [Node.js website](https://nodejs.org/).
+-   **Google Gemini API Key**: You must have a Gemini API key. You can create one at [Google AI Studio](https://aistudio.google.com/app/apikey).
 
-### Configuration: Google Gemini API Key
+### Step-by-Step Instructions
 
-This application requires a Google Gemini API key to function.
+#### Step 1: Get the Project Files
 
-1.  **Get an API Key**: Visit [Google AI Studio](https://aistudio.google.com/app/apikey) to create a new API key.
-2.  **Set Environment Variable**: The application is designed to read the API key from a `process.env.API_KEY` variable. How you set this will depend on your development environment. For many local development servers (like Vite or Create React App), you can create a `.env` file in the root of your project.
+First, download or clone the project files to a local directory on your computer.
 
-    Create a file named `.env` in the project root and add the following line, replacing `YOUR_API_KEY` with the key you obtained:
+```bash
+# If you have git installed, you can clone it:
+git clone https://github.com/your-repo/eu-mortgage-subsidy-copilot.git
 
-    ```
-    API_KEY=YOUR_API_KEY
-    ```
+# Then navigate into the project directory
+cd eu-mortgage-subsidy-copilot
+```
 
-    **Note**: The current setup with static files does not have a built-in way to process `.env` files. You would typically need a bundler like Vite or Webpack. For simple local testing, you might need to hardcode the key, but this is **not recommended** for production.
+#### Step 2: Create a `package.json` File
 
-### Running the Application
+This file will manage the project's development dependencies (specifically, Vite). Create a new file named `package.json` in the root of your project directory and add the following content:
 
-1.  **Clone the repository (if applicable) or download the files.**
-2.  **Navigate to the project directory** in your terminal.
-3.  **Start a local web server.** If you have Node.js and `http-server` installed, you can run:
-    ```bash
-    npx http-server
-    ```
-4.  **Open your browser** and navigate to the local address provided by the server (e.g., `http://localhost:8080`).
+```json
+{
+  "name": "eu-mortgage-subsidy-copilot",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.2.0"
+  }
+}
+```
+
+#### Step 3: Install Dependencies
+
+Open your terminal in the project directory and run the following command to install the packages defined in `package.json`:
+
+```bash
+npm install
+```
+
+#### Step 4: Configure the API Key
+
+Create a new file named `.env` in the root of your project directory. This file will securely store your API key. **This file should not be committed to version control.**
+
+Add your API key to the `.env` file in the following format:
+
+```
+API_KEY=YOUR_GEMINI_API_KEY
+```
+Replace `YOUR_GEMINI_API_KEY` with the actual key you obtained from Google AI Studio.
+
+#### Step 5: Create a Vite Configuration File
+
+To make the API key from the `.env` file available to the application code as `process.env.API_KEY`, we need a Vite configuration file.
+
+Create a new file named `vite.config.js` in the project root and add the following code:
+
+```javascript
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => {
+  // Load env file based on `mode` in the current working directory.
+  const env = loadEnv(mode, process.cwd(), '');
+  return {
+    plugins: [react()],
+    // Pass the API_KEY to the client-side code
+    define: {
+      'process.env.API_KEY': JSON.stringify(env.API_KEY)
+    }
+  }
+})
+```
+
+#### Step 6: Run the Development Server
+
+You're all set! Run the following command in your terminal to start the Vite development server:
+
+```bash
+npm run dev
+```
+
+Vite will start the server and print a local URL in your terminal, which is typically `http://localhost:5173/`.
+
+#### Step 7: Open the Application
+
+Open your web browser and navigate to the URL provided by Vite. The EU Mortgage Subsidy Copilot should now be running correctly.
 
 ## 🛠️ How It Works
 
