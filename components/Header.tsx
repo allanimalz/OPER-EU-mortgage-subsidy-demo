@@ -1,7 +1,9 @@
-
 import React from 'react';
 import { BuildingIcon } from './icons/Icons';
 
+/**
+ * Renders the main application header with the title and logo.
+ */
 export const Header: React.FC = () => {
   return (
     <header className="bg-brand-primary shadow-md">

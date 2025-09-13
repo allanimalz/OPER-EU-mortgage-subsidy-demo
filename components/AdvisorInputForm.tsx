@@ -5,18 +5,29 @@ import { SearchIcon, SparkleIcon, ChevronDownIcon } from './icons/Icons';
 import { generateRandomProfile } from '../services/geminiService';
 
 interface AdvisorInputFormProps {
+  /** The function to call when the form is submitted. */
   onSubmit: (input: AdvisorInput) => void;
+  /** A boolean indicating if the parent component is currently processing a request. */
   isLoading: boolean;
 }
 
 const eligibilityOptions = ['First-time Buyer', 'Energy Efficiency', 'Renovation', 'Low Income', 'Young Applicant (under 35)', 'Family with Children'];
 const subsidyTypeOptions = ['Grant', 'Loan', 'Tax Credit'];
 
+/**
+ * A form component for advisors to input client details and search criteria
+ * to find mortgage subsidies.
+ */
 export const AdvisorInputForm: React.FC<AdvisorInputFormProps> = ({ onSubmit, isLoading }) => {
+  // State for the selected country.
   const [country, setCountry] = useState<string>(EU_COUNTRIES[0]);
+  // State for the client profile textarea.
   const [clientProfile, setClientProfile] = useState<string>('');
+  // State to manage the loading status of the "Generate Example" button.
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  // State to control the visibility of the advanced filters section.
   const [showFilters, setShowFilters] = useState(true);
+  // State object for all advanced filter inputs.
   const [filters, setFilters] = useState<SearchFilters>({
     minGrantAmount: '',
     eligibility: [],
@@ -24,11 +35,13 @@ export const AdvisorInputForm: React.FC<AdvisorInputFormProps> = ({ onSubmit, is
     subsidyTypes: [],
   });
 
+  /** Handles changes for simple text/number inputs in the filters. */
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
+  /** Handles changes for checkbox groups (eligibility and subsidy types). */
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, filterType: 'eligibility' | 'subsidyTypes') => {
     const { value, checked } = e.target;
     setFilters(prev => {
@@ -41,6 +54,7 @@ export const AdvisorInputForm: React.FC<AdvisorInputFormProps> = ({ onSubmit, is
     });
   };
 
+  /** Packages the form state and calls the onSubmit prop when the form is submitted. */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
@@ -50,6 +64,7 @@ export const AdvisorInputForm: React.FC<AdvisorInputFormProps> = ({ onSubmit, is
     });
   };
   
+  /** Calls the Gemini service to generate an example client profile and updates the state. */
   const handleGenerateProfile = async () => {
     setIsGenerating(true);
     try {
@@ -62,6 +77,7 @@ export const AdvisorInputForm: React.FC<AdvisorInputFormProps> = ({ onSubmit, is
     }
   };
 
+  // Disable form elements during main search or profile generation to prevent conflicts.
   const isFormDisabled = isLoading || isGenerating;
 
   return (
@@ -97,6 +113,7 @@ export const AdvisorInputForm: React.FC<AdvisorInputFormProps> = ({ onSubmit, is
                     onClick={handleGenerateProfile}
                     disabled={isFormDisabled}
                     className="flex items-center text-sm font-medium text-brand-secondary hover:text-brand-dark disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Generate an example client profile"
                 >
                     <SparkleIcon className="h-4 w-4 mr-1" />
                     {isGenerating ? 'Generating...' : 'Generate Example'}
@@ -120,12 +137,13 @@ export const AdvisorInputForm: React.FC<AdvisorInputFormProps> = ({ onSubmit, is
             onClick={() => setShowFilters(!showFilters)}
             className="w-full flex justify-between items-center text-left font-medium text-gray-700 p-2 rounded-md hover:bg-gray-50 focus:outline-none"
             aria-expanded={showFilters}
+            aria-controls="advanced-filters"
           >
             <span>Advanced Filters</span>
             <ChevronDownIcon className={`h-5 w-5 transform transition-transform ${showFilters ? 'rotate-180' : ''}`} />
           </button>
           {showFilters && (
-            <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50 space-y-4">
+            <div id="advanced-filters" className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50 space-y-4">
               <div>
                 <label htmlFor="minGrantAmount" className="block text-sm font-medium text-gray-700 mb-1">Minimum Grant Amount (€)</label>
                 <input
@@ -182,9 +200,9 @@ export const AdvisorInputForm: React.FC<AdvisorInputFormProps> = ({ onSubmit, is
         >
           {isLoading ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8_0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               Searching...
             </>

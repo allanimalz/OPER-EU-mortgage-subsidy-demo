@@ -1,9 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 import { AdvisorInput, GeminiResponse, GroundingChunk } from "../types";
 
-// Fix: Initialize GoogleGenAI with API key from environment variables.
+// Initialize the GoogleGenAI client with the API key from environment variables.
+// This instance is reused for all API calls in this service.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+/**
+ * Generates a random, realistic client profile for a given country to be used as an example.
+ * This helps users quickly test the application without having to write a profile themselves.
+ * @param country - The country to generate a profile for.
+ * @returns A promise that resolves to a string containing the client profile.
+ */
 export const generateRandomProfile = async (country: string): Promise<string> => {
   try {
     const model = "gemini-2.5-flash";
@@ -18,7 +25,7 @@ export const generateRandomProfile = async (country: string): Promise<string> =>
         model,
         contents: prompt,
         config: {
-            // Disable thinking for faster, more direct responses.
+            // Disable thinking for this simple, creative task to get a faster response.
             thinkingConfig: { thinkingBudget: 0 }
         }
     });
@@ -26,18 +33,23 @@ export const generateRandomProfile = async (country: string): Promise<string> =>
     return result.text.trim();
   } catch (error) {
     console.error("Failed to generate random profile:", error);
-    // Fallback profile
+    // Provide a generic fallback profile in case the API call fails.
     return "First-time home buyer, under 35 years old, looking to purchase a new energy-efficient apartment.";
   }
 };
 
+/**
+ * Finds housing subsidies based on user input by calling the Gemini API with Google Search grounding.
+ * @param input - The advisor's input, including country, client profile, and filters.
+ * @returns A promise that resolves to an object containing the parsed API response and the list of sources.
+ */
 export const findSubsidies = async (
   input: AdvisorInput
 ): Promise<{ response: GeminiResponse; sources: GroundingChunk[] }> => {
   const { country, clientProfile, filters } = input;
-  // Fix: Use the recommended 'gemini-2.5-flash' model.
   const model = "gemini-2.5-flash";
 
+  // Dynamically build a list of filter clauses to add to the prompt.
   const filterClauses: string[] = [];
   if (filters.minGrantAmount) {
     filterClauses.push(`- The subsidy must provide a minimum grant amount of €${filters.minGrantAmount}.`);
@@ -55,6 +67,7 @@ export const findSubsidies = async (
     filterClauses.push(`- Only consider subsidies of the following types: ${filters.subsidyTypes.join(', ')}.`);
   }
 
+  // Construct the main prompt sent to the Gemini API.
   const prompt = `
     You are an expert advisor on EU housing subsidies.
     A user from ${country} is asking for information on mortgage and housing subsidies.
@@ -83,42 +96,43 @@ export const findSubsidies = async (
     }
   `;
 
-  // Fix: Use generateContent with googleSearch tool for up-to-date information.
-  // Do not use responseSchema or responseMimeType with googleSearch.
+  // Call the Gemini API to generate content.
   const result = await ai.models.generateContent({
     model,
     contents: prompt,
     config: {
+      // Enable the googleSearch tool to ground the model's response in real-time information.
+      // This is crucial for getting up-to-date subsidy details.
       tools: [{ googleSearch: {} }],
-      // Disable thinking for a faster response.
-      // This may trade off some quality for speed in complex queries.
+      // Disable thinking for a faster response, as search grounding provides the core information.
       thinkingConfig: { thinkingBudget: 0 },
     },
   });
 
-  // Fix: Extract text response and grounding metadata correctly.
+  // Extract the main text response and the grounding metadata.
   const responseText = result.text;
-  // Fix: The GroundingChunk type from the Gemini API has an optional `uri`, but the app's type requires it.
-  // Filter out chunks without a URI and map the result to the app's type, providing a fallback for the title.
   const sources: GroundingChunk[] =
     (result.candidates?.[0]?.groundingMetadata?.groundingChunks || [])
+    // Ensure that we only include sources that have a valid URI.
     .filter(chunk => chunk.web?.uri)
     .map(chunk => ({
       web: {
         uri: chunk.web!.uri!,
+        // Provide a fallback title if the source is missing one.
         title: chunk.web!.title || chunk.web!.uri!,
       }
     }));
   
   let parsedResponse: GeminiResponse;
   try {
-    // The response might have markdown ```json ... ```. We need to strip that before parsing.
+    // The model might wrap its JSON response in markdown backticks.
+    // This cleaning step removes them to ensure the string is valid JSON before parsing.
     const cleanedText = responseText.replace(/^```json\n?/, "").replace(/```$/, "");
     parsedResponse = JSON.parse(cleanedText);
   } catch (error) {
     console.error("Failed to parse Gemini response as JSON:", error);
     console.error("Raw response:", responseText);
-    // Return a default error state if parsing fails
+    // If parsing fails, return a user-friendly error message within the expected structure.
     parsedResponse = {
       subsidies: [],
       summary: "I'm sorry, I couldn't process the information from the official sources. The format was unexpected. Please try rephrasing your request.",

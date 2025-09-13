@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,6 +21,11 @@
         }
       }
     </script>
+  <!-- 
+    The importmap allows us to use bare module specifiers (e.g., "react") in our JavaScript modules,
+    telling the browser where to fetch them from. This avoids the need for a complex build step
+    for this simple application.
+  -->
   <script type="importmap">
 {
   "imports": {

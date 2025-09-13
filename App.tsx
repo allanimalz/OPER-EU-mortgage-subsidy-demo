@@ -9,22 +9,37 @@ import { findSubsidies } from './services/geminiService';
 import { AdvisorInput, GeminiResponse, GroundingChunk } from './types';
 import { WarningIcon, BuildingIcon, LinkIcon } from './components/icons/Icons';
 
+/**
+ * The main application component. It orchestrates the entire UI,
+ * manages state, and handles the subsidy search functionality.
+ */
 function App() {
+  // State for managing the loading status of the API call.
   const [isLoading, setIsLoading] = useState(false);
+  // State for storing the parsed results from the Gemini API.
   const [results, setResults] = useState<GeminiResponse | null>(null);
+  // State for storing the grounding sources (URLs) from the Gemini API response.
   const [sources, setSources] = useState<GroundingChunk[]>([]);
+  // State for storing any potential errors that occur during the API call.
   const [error, setError] = useState<string | null>(null);
+  // State to track if the API key is available, controlling the main UI or an error message.
   const [isApiKeyAvailable, setIsApiKeyAvailable] = useState(true);
 
+  // On component mount, check if the necessary API_KEY environment variable is set.
+  // This is a crucial step for the application to function correctly.
   useEffect(() => {
-    // This check assumes `process.env` is available in the execution environment.
-    // If API_KEY is not set, we show a configuration error to the user.
     if (!process.env.API_KEY) {
       console.error('CRITICAL: API_KEY environment variable is not set.');
       setIsApiKeyAvailable(false);
     }
   }, []);
 
+  /**
+   * Handles the search submission from the AdvisorInputForm.
+   * It sets the loading state, calls the Gemini service, and updates the
+   * state with the results, sources, or an error.
+   * @param input - The search criteria from the advisor's form.
+   */
   const handleSearch = async (input: AdvisorInput) => {
     setIsLoading(true);
     setResults(null);
@@ -42,6 +57,9 @@ function App() {
     }
   };
   
+  /**
+   * Renders the initial placeholder state for the results area before a search is performed.
+   */
   const InitialState = () => (
     <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200 h-full flex flex-col justify-center items-center text-center">
       <div className="bg-brand-light p-4 rounded-full mb-6">
@@ -54,6 +72,11 @@ function App() {
     </div>
   );
 
+  /**
+   * Renders a formatted error message.
+   * @param {object} props - The component props.
+   * @param {string} props.error - The error message to display.
+   */
   const ErrorMessage = ({ error }: { error: string }) => (
       <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg" role="alert">
           <div className="flex">
@@ -68,6 +91,11 @@ function App() {
       </div>
   );
 
+  /**
+   * Renders the list of official sources returned by the API.
+   * @param {object} props - The component props.
+   * @param {GroundingChunk[]} props.sources - The array of sources to display.
+   */
   const SourcesList = ({ sources }: { sources: GroundingChunk[] }) => (
      <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
@@ -106,21 +134,23 @@ function App() {
                     <AdvisorInputForm onSubmit={handleSearch} isLoading={isLoading} />
                 </div>
 
-                {/* Conditional rendering for the right-hand side */}
+                {/* Conditional rendering for the right-hand side based on application state */}
                 {isLoading || error || !results ? (
+                    // Display loading, error, or initial state
                     <div className="lg:col-span-9 xl:col-span-9">
                         {isLoading && <LoadingSpinner />}
                         {error && <ErrorMessage error={error} />}
                         {!isLoading && !error && !results && <InitialState />}
                     </div>
                 ) : (
+                    // Display results once available
                     <>
-                        {/* Column 2: AI Summary */}
+                        {/* Column 2: AI Summary Card */}
                         <div className="lg:col-span-5 xl:col-span-5">
                             <SummaryCard results={results} sources={sources} />
                         </div>
 
-                        {/* Column 3: Details */}
+                        {/* Column 3: Detailed Visualization and Sources */}
                         <div className="lg:col-span-4 xl:col-span-4 space-y-8">
                             {results.subsidies && results.subsidies.length > 0 && (
                                 <DetailsColumn subsidies={results.subsidies} sources={sources} />
@@ -131,6 +161,7 @@ function App() {
                 )}
             </div>
           ) : (
+            // Display a configuration error if the API key is not set
             <div className="bg-orange-100 border-l-4 border-orange-500 text-orange-800 p-6 mt-8 rounded-r-lg shadow-md" role="alert">
                 <div className="flex">
                     <div className="flex-shrink-0 py-1">

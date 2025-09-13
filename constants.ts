@@ -1,4 +1,7 @@
-
+/**
+ * An array of European Union member states.
+ * Used to populate the country selection dropdown in the input form.
+ */
 export const EU_COUNTRIES = [
     "Austria",
     "Belgium",

@@ -8,7 +8,15 @@ interface DetailsColumnProps {
   sources: GroundingChunk[];
 }
 
+/**
+ * A collapsible card component that displays the detailed information for a single subsidy.
+ * It includes the description, eligibility criteria, and potential benefit.
+ * @param {object} props - The component props.
+ * @param {Subsidy} props.subsidy - The subsidy data to display.
+ * @param {GroundingChunk[]} props.sources - The list of sources for citation linking.
+ */
 const SubsidyCard: React.FC<{ subsidy: Subsidy; sources: GroundingChunk[] }> = ({ subsidy, sources }) => {
+    // State to manage the expanded/collapsed state of the card.
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -17,12 +25,16 @@ const SubsidyCard: React.FC<{ subsidy: Subsidy; sources: GroundingChunk[] }> = (
                 className="w-full text-left p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 focus:outline-none"
                 onClick={() => setIsExpanded(!isExpanded)}
                 aria-expanded={isExpanded}
+                aria-controls={`subsidy-details-${subsidy.name.replace(/\s+/g, '-')}`}
             >
                 <h3 className="text-lg font-semibold text-brand-primary">{subsidy.name}</h3>
                 <ChevronDownIcon className={`h-6 w-6 text-gray-500 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
             </button>
             {isExpanded && (
-                <div className="p-4 border-t border-gray-200">
+                <div 
+                    id={`subsidy-details-${subsidy.name.replace(/\s+/g, '-')}`}
+                    className="p-4 border-t border-gray-200"
+                >
                     <p className="text-gray-700 mb-4">
                         <CitationLinker text={subsidy.description} sources={sources} />
                     </p>
@@ -52,6 +64,10 @@ const SubsidyCard: React.FC<{ subsidy: Subsidy; sources: GroundingChunk[] }> = (
     );
 };
 
+/**
+ * A component that renders the detailed results column, including a
+ * "benefits at a glance" section and a list of expandable SubsidyCard components.
+ */
 export const DetailsColumn: React.FC<DetailsColumnProps> = ({ subsidies, sources }) => {
     if (!subsidies || subsidies.length === 0) {
         return null;
@@ -59,7 +75,7 @@ export const DetailsColumn: React.FC<DetailsColumnProps> = ({ subsidies, sources
 
     return (
         <div className="space-y-8">
-            {/* Potential Benefits Visualization */}
+            {/* A summary view of potential benefits from all found subsidies. */}
             <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
                     <SparkleIcon className="h-6 w-6 mr-2 text-brand-accent" />
@@ -78,7 +94,7 @@ export const DetailsColumn: React.FC<DetailsColumnProps> = ({ subsidies, sources
                 </p>
             </div>
 
-            {/* Discovered Subsidies List */}
+            {/* A detailed list of each discovered subsidy in its own collapsible card. */}
             <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Discovered Subsidies</h3>
                 <div className="space-y-4">

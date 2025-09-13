@@ -1,6 +1,8 @@
-
 import React from 'react';
 
+/**
+ * Renders the application footer with a disclaimer and copyright information.
+ */
 export const Footer: React.FC = () => {
   return (
     <footer className="bg-white mt-8 py-4 border-t">
