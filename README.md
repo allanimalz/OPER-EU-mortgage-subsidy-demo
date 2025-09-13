@@ -2,7 +2,7 @@
 
 An AI-powered copilot for European mortgage advisors to discover current mortgage and housing subsidies for their clients using grounded, real-time search across EU databases.
 
-![EU Mortgage Subsidy Copilot Screenshot](https://storage.googleapis.com/aistudio-ux-team-public/sdk-pro-examples/eu-mortgage-copilot.png)
+https://eu-mortgage-subsidy-copilot-1019661608867.us-west1.run.app/
 
 ## Overview
 
